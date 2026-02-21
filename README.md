@@ -1,6 +1,6 @@
 # Square Dance Club Management System
 
-A modern web application for managing square dance club rosters, duty assignments, and member communications.
+A modern web application for managing square dance club rosters, duty assignments, and member communications. It runs entirely on **Vercel** (frontend + serverless API) with **Supabase** (PostgreSQL).
 
 ## Features
 
@@ -14,120 +14,61 @@ A modern web application for managing square dance club rosters, duty assignment
 
 ## Technology Stack
 
-### Frontend
-- **React 18** with React Router 6
-- **Bootstrap** for responsive UI components
-- **Zustand** for state management
-- **React Query** for API data management
-- **Vite** for fast development and building
-
-### Backend
-- **PHP 8.1+** with Slim Framework
-- **MariaDB/MySQL** database
-- **JWT** authentication
-- **PHPMailer** for email functionality
-- **Google Maps API** for geocoding and mapping
+- **Frontend**: React 18, React Router 6, Bootstrap, Zustand, React Query, Vite
+- **API**: Vercel serverless functions (Node.js) under `/api/*`
+- **Database**: Supabase (PostgreSQL)
+- **Auth**: Magic-link + JWT (tokens in `login_tokens` table)
 
 ## Project Structure
 
 ```
-squarehead/
-├── frontend/           # React SPA
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── hooks/
-│   │   ├── services/
-│   │   └── store/
-│   └── package.json
-├── backend/            # PHP API
-│   ├── src/
-│   │   ├── routes/
-│   │   ├── models/
-│   │   ├── services/
-│   │   └── middleware/
-│   ├── database/
-│   └── composer.json
-├── docs/              # Documentation
-└── tests/             # Test files
+squarehead-serverless/
+├── frontend/              # React app + Vercel API
+│   ├── src/               # React components, pages, hooks, store
+│   ├── api/               # Serverless API routes (Vercel)
+│   ├── lib/                # Shared server-side helpers (Supabase, JWT, auth)
+│   ├── package.json
+│   └── vercel.json
+├── supabase/
+│   └── schema.sql         # PostgreSQL schema (run once in Supabase SQL Editor)
+├── docs/
+└── README.md
 ```
 
-## Local Development
+## Quick Start
 
-### Prerequisites
-- Node.js 18+
-- PHP 8.1+
-- MariaDB/MySQL
-- Composer
+### 1. Supabase
 
-### Frontend Setup
+1. Create a project at [supabase.com](https://supabase.com).
+2. In **SQL Editor**, run the contents of `supabase/schema.sql`.
+3. Note your **Project URL** and **service_role** key (Settings → API).
+
+### 2. Local development
+
 ```bash
 cd frontend
 npm install
-npm run dev
-# Frontend runs on http://localhost:5181
+cp .env.example .env.local
+# Edit .env.local with SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, JWT_SECRET
+vercel dev
 ```
 
-### Backend Setup
+This serves the app and API at http://localhost:3000 (or the port Vercel reports). Use this for full-stack local development.
+
+### 3. Deploy to Vercel
+
 ```bash
-cd backend
-composer install
-# Configure .env file with database credentials
-php -S localhost:8000 -t public/
-# Backend API runs on http://localhost:8000
+cd frontend
+vercel
 ```
 
-## Development Testing
+Set **Root Directory** to `frontend` (or deploy from inside `frontend`). In the Vercel project, add environment variables: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `JWT_SECRET`, and SMTP vars if you use email.
 
-For development and testing, use this URL with the long-lived token:
-```
-http://localhost:5181/members?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
-```
+Full deployment steps and env vars: **[docs/DEPLOYMENT_VERCEL_SUPABASE.md](docs/DEPLOYMENT_VERCEL_SUPABASE.md)**
 
-## Key Features Implemented
+## Database
 
-### Map Page with Cached Coordinates
-- Uses cached lat/long coordinates to minimize Google Maps API calls
-- Automatically geocodes new addresses and caches results
-- Jittering for duplicate addresses ensures all markers are visible
-- Color-coded markers by member status (Assignable, Booster, LOA, Exempt)
-
-### Member Management
-- Complete CRUD operations for member data
-- CSV import/export functionality
-- Partner and friend relationship tracking
-- Status management (Assignable, Booster, LOA, Exempt)
-
-### Schedule Management
-- Create and manage duty assignments
-- Support for regular and fifth Wednesday schedules
-- Email reminder system for assigned members
-
-### Admin Panel
-- Club settings and configuration
-- Email template management with Markdown support
-- Google Maps API key configuration
-- Password field visibility toggles
-
-## Database Schema
-
-The application uses several key tables:
-- `users` - Member information with cached coordinates
-- `schedules` - Dance schedules and assignments
-- `settings` - Club configuration and preferences
-- `login_tokens` - Authentication tokens
-
-## Recent Updates
-
-### Phase 11.2 - Map Coordinate Caching
-- Implemented cached lat/long coordinates for member addresses
-- Reduced Google Maps API calls by 98% for typical usage
-- Added visual indicators for cached vs. geocoded coordinates
-- Maintained jittering and all existing map functionality
-
-## Contributing
-
-This is a self-contained project for square dance club management. All code is located in the `/Users/mpogue/squarehead/` directory.
+Tables (in Supabase): `users`, `login_tokens`, `settings`, `schedules`, `schedule_assignments`. Schema is in `supabase/schema.sql`.
 
 ## License
 
